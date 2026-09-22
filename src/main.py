@@ -9,26 +9,27 @@ user_db = {}
 
 @app.post("/api/users")
 def create_user(request: CreateUserRequest) -> UserResponse:
-    # Todo
+    user_id = len(user_db) + 1
+    user_db[user_id] = request.model_dump()
 
-    return 0
+    return UserResponse(user_id=user_id, **user_db[user_id])
 
 
 @app.get("/api/users/{user_id}")
-def get_user(
-    # Todo
-    
-) -> UserResponse:
-    # Todo
+def get_user(user_id: int) -> UserResponse:
+    if user_id not in user_db:
+        raise ValueError(f"User with id {user_id} not found")
 
-    return 0
+    return UserResponse(user_id=user_id, **user_db[user_id])
 
 
 @app.get("/api/users")
 def get_users(
-    # Todo
-
+    min_height: float = Query(...),
+    max_height: float = Query(...),
 ) -> list[UserResponse]:
-    # Todo
-
-    return 0
+    return [
+        UserResponse(user_id=user_id, **user)
+        for user_id, user in user_db.items()
+        if min_height <= user["height"] <= max_height
+    ]
